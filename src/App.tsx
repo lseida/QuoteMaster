@@ -1,4 +1,4 @@
-import { Authenticated, GitHubBanner, Refine } from "@refinedev/core";
+import { Authenticated, Refine } from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -41,11 +41,12 @@ import ClienteList from './components/ClienteList';
 import ProductoForm from './components/ProductoForm';
 import { ShoppingOutlined } from "@ant-design/icons";
 import ProductoList from './components/ProductoList';
+import { CalendarOutlined } from "@ant-design/icons";
+import EventCalendar from './components/EventCalendar';
 
 function App() {
   return (
     <BrowserRouter>
-      <GitHubBanner />
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
@@ -71,6 +72,13 @@ function App() {
                     meta: {
                       canDelete: true,
                       icon: <ShoppingOutlined />, // Asegúrate de importar este icono
+                    },
+                  },
+                  {
+                    name: "calendario",
+                    list: "/calendario",
+                    meta: {
+                      icon: <CalendarOutlined />,
                     },
                   },
                 ]}
@@ -107,6 +115,7 @@ function App() {
                     </Route>
                     <Route path="/productos/crear" element={<ProductoForm />} />
                     <Route path="/productos" element={<ProductoList />} />
+                    <Route path="/calendario" element={<EventCalendar />} />
                     <Route path="*" element={<ErrorComponent />} />
                   </Route>
                   <Route

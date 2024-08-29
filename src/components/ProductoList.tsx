@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Space, InputNumber, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { Producto } from '../Types/Producto';
+import { Producto } from '../Types/producto';
 
 const ProductoList: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);

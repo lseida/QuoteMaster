@@ -1,0 +1,36 @@
+.custom-time-picker-dropdown .ant-picker-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+  }
+  
+  .custom-time-picker-dropdown .ant-picker-footer-extra {
+    flex: 1;
+    text-align: right;
+  }
+  
+  .custom-time-picker-dropdown .ant-picker-now-btn {
+    margin-right: 8px;
+  }
+
+.ant-picker-calendar .ant-picker-calendar-date-content .ant-badge-status {
+  position: relative;
+  display: inline-block;
+}
+
+.ant-picker-calendar .ant-picker-calendar-date-content .ant-badge-status:hover::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background-color: rgba(24, 144, 255, 0.1);
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.ant-picker-calendar .ant-picker-calendar-date-content .ant-badge-status:hover .ant-badge-status-text {
+  text-decoration: underline;
+}
