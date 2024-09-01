@@ -1,6 +1,7 @@
 import { Authenticated, Refine } from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
+import TaskList from "./components/TaskList";
 
 import {
   AuthPage,
@@ -71,12 +72,19 @@ function App() {
                     create: "/productos/crear",
                     meta: {
                       canDelete: true,
-                      icon: <ShoppingOutlined />, // Asegúrate de importar este icono
+                      icon: <ShoppingOutlined />,
                     },
                   },
                   {
                     name: "calendario",
                     list: "/calendario",
+                    meta: {
+                      icon: <CalendarOutlined />,
+                    },
+                  },
+                  {
+                    name: "tareas",
+                    list: "/tareas",
                     meta: {
                       icon: <CalendarOutlined />,
                     },
@@ -116,6 +124,7 @@ function App() {
                     <Route path="/productos/crear" element={<ProductoForm />} />
                     <Route path="/productos" element={<ProductoList />} />
                     <Route path="/calendario" element={<EventCalendar />} />
+                    <Route path="/tareas" element={<TaskList />} />
                     <Route path="*" element={<ErrorComponent />} />
                   </Route>
                   <Route
