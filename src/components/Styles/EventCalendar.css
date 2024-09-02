@@ -3,34 +3,99 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px;
-  }
-  
-  .custom-time-picker-dropdown .ant-picker-footer-extra {
+}
+
+.custom-time-picker-dropdown .ant-picker-footer-extra {
     flex: 1;
     text-align: right;
-  }
-  
-  .custom-time-picker-dropdown .ant-picker-now-btn {
+}
+
+.custom-time-picker-dropdown .ant-picker-now-btn {
     margin-right: 8px;
-  }
+}
 
 .ant-picker-calendar .ant-picker-calendar-date-content .ant-badge-status {
-  position: relative;
-  display: inline-block;
+    position: relative;
+    display: inline-block;
 }
 
 .ant-picker-calendar .ant-picker-calendar-date-content .ant-badge-status:hover::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background-color: rgba(24, 144, 255, 0.1);
-  border-radius: 2px;
-  z-index: -1;
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background-color: rgba(24, 144, 255, 0.1);
+    border-radius: 2px;
+    z-index: -1;
 }
 
 .ant-picker-calendar .ant-picker-calendar-date-content .ant-badge-status:hover .ant-badge-status-text {
-  text-decoration: underline;
+    text-decoration: underline;
+}
+
+.event-calendar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar {
+    width: 100%;
+}
+
+.main-content {
+    width: 100%;
+}
+
+.upcoming-events-card {
+    width: 100%;
+}
+
+.view-toggle {
+    margin-bottom: 16px;
+}
+
+@media (min-width: 1024px) {
+    .event-calendar-container {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 300px;
+        flex-shrink: 0;
+    }
+
+    .main-content {
+        flex-grow: 1;
+    }
+}
+
+/* Estilos adicionales que ya tenías */
+.events {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.event-tag {
+    margin-right: 4px;
+}
+
+.custom-time-picker-dropdown {
+    z-index: 1070 !important;
+}
+
+/* Ajustes adicionales para mejorar la apariencia en móviles */
+@media (max-width: 1023px) {
+    .ant-picker-calendar {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+/* Ocultar el selector de día/mes */
+.ant-picker-calendar-mode-switch {
+    display: none !important;
 }

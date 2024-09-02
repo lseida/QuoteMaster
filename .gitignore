@@ -24,3 +24,10 @@ _.ntvs_
 _.njsproj
 _.sln
 \*.sw?
+
+# Archivos de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

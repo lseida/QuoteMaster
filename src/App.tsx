@@ -3,6 +3,7 @@ import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import TaskList from "./components/TaskList";
 
+
 import {
   AuthPage,
   ErrorComponent,
@@ -37,7 +38,7 @@ import {
   CategoryList,
   CategoryShow,
 } from "./pages/categories";
-import { supabaseClient } from "./utility";
+import supabaseClient from "./utility/supabaseClient";
 import ClienteList from './components/ClienteList';
 import ProductoForm from './components/ProductoForm';
 import { ShoppingOutlined } from "@ant-design/icons";

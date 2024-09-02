@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, Modal, Form, Input, TimePicker, Select, Tag, message, Button, ConfigProvider, List } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Modal, Form, Input, TimePicker, Select, Tag, message, Button, ConfigProvider, List, Card, Empty } from 'antd';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import './styles/EventCalendar.css'; 
@@ -16,6 +16,7 @@ interface Event {
   time: Dayjs;
   tag: string;
   description: string;
+  color: string;
 }
 
 const tagColors = {
@@ -37,6 +38,7 @@ const EventCalendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [form] = Form.useForm();
   const [customTag, setCustomTag] = useState<string>('');
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
 
   // Actualiza las funciones que manejan fechas
   const handleDateSelect = (date: Dayjs) => {
@@ -74,6 +76,7 @@ const EventCalendar: React.FC = () => {
           time: values.time,
           tag: values.tag,
           description: values.description,
+          color: values.color,
         };
         setEvents([...events, newEvent]);
         message.success('Evento añadido con éxito');
@@ -175,35 +178,71 @@ const EventCalendar: React.FC = () => {
   const [currentView, setCurrentView] = useState<'month' | 'day'>('day');
   const [selectedViewDate, setSelectedViewDate] = useState<Dayjs>(dayjs());
 
+  // Nueva función para obtener los próximos eventos
+  const getUpcomingEvents = () => {
+    const sortedEvents = events.sort((a, b) => a.date.diff(b.date));
+    return sortedEvents.slice(0, 5); // Obtener los próximos 5 eventos
+  };
+
+  // Actualizar upcomingEvents cuando cambian los eventos
+  useEffect(() => {
+    setUpcomingEvents(getUpcomingEvents());
+  }, [events]);
+
   return (
     <ConfigProvider locale={esES}>
-      <div>
-        <Button.Group style={{ marginBottom: 16 }}>
-          <Button 
-            type={currentView === 'day' ? 'primary' : 'default'} 
-            onClick={() => handleViewChange('day')}
-          >
-            Día
-          </Button>
-          <Button 
-            type={currentView === 'month' ? 'primary' : 'default'} 
-            onClick={() => handleViewChange('month')}
-          >
-            Mes
-          </Button>
-        </Button.Group>
+      <div className="event-calendar-container">
+        <div className="sidebar">
+          <Card title="Próximos eventos" className="upcoming-events-card">
+            {upcomingEvents.length > 0 ? (
+              <List
+                dataSource={upcomingEvents}
+                renderItem={(event) => (
+                  <List.Item>
+                    <div>
+                      <div>{event.title}</div>
+                      <small>{event.date.format('DD/MM/YYYY HH:mm')}</small>
+                    </div>
+                    <Tag color={tagColors[event.tag as keyof typeof tagColors]}>
+                      {event.tag}
+                    </Tag>
+                  </List.Item>
+                )}
+              />
+            ) : (
+              <Empty description="No hay datos" />
+            )}
+          </Card>
+        </div>
 
-        {currentView === 'month' ? (
-          <Calendar 
-            onSelect={(date) => {
-              setSelectedViewDate(date);
-              handleDateSelect(date);
-            }}
-            cellRender={(date, info) => info.type === 'date' ? dateCellRender(date) : null}
-          />
-        ) : (
-          renderDayView()
-        )}
+        <div className="main-content">
+          <Button.Group className="view-toggle">
+            <Button 
+              type={currentView === 'day' ? 'primary' : 'default'} 
+              onClick={() => handleViewChange('day')}
+            >
+              Día
+            </Button>
+            <Button 
+              type={currentView === 'month' ? 'primary' : 'default'} 
+              onClick={() => handleViewChange('month')}
+            >
+              Mes
+            </Button>
+          </Button.Group>
+
+          {currentView === 'month' ? (
+            <Calendar 
+              onSelect={(date) => {
+                setSelectedViewDate(date);
+                handleDateSelect(date);
+              }}
+              cellRender={(date, info) => info.type === 'date' ? dateCellRender(date) : null}
+            />
+          ) : (
+            renderDayView()
+          )}
+        </div>
       </div>
 
       <Modal

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, InputNumber, Select } from 'antd';
+import { Table, Button, Modal, Form, Input, Space, InputNumber, Select, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Producto } from '../Types/producto';
+import supabase from '../utility/supabaseClient';
 
 const ProductoList: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -10,7 +11,18 @@ const ProductoList: React.FC = () => {
 
   // Aquí deberías cargar los productos desde tu API o base de datos
   useEffect(() => {
-    // Ejemplo: setProductos(await fetchProductos());
+    const fetchProductos = async () => {
+      const { data, error } = await supabase
+        .from('productos')
+        .select('*');
+      if (error) {
+        console.error('Error al cargar productos:', error);
+        message.error('Error al cargar productos: ' + error.message);
+      } else {
+        setProductos(data || []);
+      }
+    };
+    fetchProductos();
   }, []);
 
   const columns = [
