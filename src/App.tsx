@@ -1,9 +1,10 @@
 import { Authenticated, Refine } from "@refinedev/core";
+import { dataProvider, liveProvider } from "@refinedev/supabase";
+import authProvider from "./authProvider";
+import supabaseClient from "./utility/supabaseClient";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import TaskList from "./components/TaskList";
-
-
 import {
   AuthPage,
   ErrorComponent,
@@ -19,26 +20,13 @@ import routerBindings, {
   NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
-import { dataProvider, liveProvider } from "@refinedev/supabase";
+
 import { App as AntdApp } from "antd";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import authProvider from "./authProvider";
 import { AppIcon } from "./components/app-icon";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
-import {
-  BlogPostCreate,
-  BlogPostEdit,
-  BlogPostList,
-  BlogPostShow,
-} from "./pages/blog-posts";
-import {
-  CategoryCreate,
-  CategoryEdit,
-  CategoryList,
-  CategoryShow,
-} from "./pages/categories";
-import supabaseClient from "./utility/supabaseClient";
+
 import ClienteList from './components/ClienteList';
 import ProductoForm from './components/ProductoForm';
 import { ShoppingOutlined } from "@ant-design/icons";
@@ -130,10 +118,7 @@ function App() {
                   </Route>
                   <Route
                     element={
-                      <Authenticated
-                        key="authenticated-outer"
-                        fallback={<Outlet />}
-                      >
+                      <Authenticated fallback={<Outlet />} key="authenticated-outer">
                         <NavigateToResource />
                       </Authenticated>
                     }
@@ -143,18 +128,8 @@ function App() {
                       element={
                         <AuthPage
                           type="login"
-                          formProps={{
-                            initialValues: {
-                              email: "info@refine.dev",
-                              password: "refine-supabase",
-                            },
-                          }}
                         />
                       }
-                    />
-                    <Route
-                      path="/register"
-                      element={<AuthPage type="register" />}
                     />
                     <Route
                       path="/forgot-password"
