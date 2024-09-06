@@ -26,7 +26,6 @@ import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { AppIcon } from "./components/app-icon";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
-
 import ClienteList from './components/ClienteList';
 import ProductoForm from './components/ProductoForm';
 import { ShoppingOutlined } from "@ant-design/icons";
@@ -142,7 +141,7 @@ function App() {
                   <UnsavedChangesNotifier />
                   <DocumentTitleHandler />
                 </Refine>
-              </AuthProvider> {/* Cerramos AuthProvider */}
+              </AuthProvider>
              
           </AntdApp>
         </ColorModeContextProvider>
