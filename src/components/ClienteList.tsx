@@ -105,10 +105,11 @@ const ClienteList: React.FC = () => {
       setEditingClient(null);
       message.success('Cliente actualizado exitosamente');
       setIsModalVisible(false);
-    } catch (error) {
-      const mensajeError = error instanceof Error ? error.message : 'Error desconocido';
-      message.error('Error al actualizar el cliente: ' + mensajeError);
+      } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      message.error('Error al agregar el cliente: ' + errorMessage);
     }
+    
   };
 
   const handleDeleteClient = async (id: number) => {
@@ -132,8 +133,8 @@ const ClienteList: React.FC = () => {
       
       message.success('Cliente eliminado exitosamente');
     } catch (error) {
-      const mensajeError = error instanceof Error ? error.message : 'Error desconocido';
-      message.error('Error al eliminar el cliente: ' + mensajeError);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      message.error('Error al agregar el cliente: ' + errorMessage);
     }
   };
 

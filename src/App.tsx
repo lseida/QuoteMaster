@@ -2,9 +2,9 @@ import { Authenticated, Refine } from "@refinedev/core";
 import { dataProvider, liveProvider } from "@refinedev/supabase";
 import authProvider from "./authProvider";
 import supabaseClient from "./utility/supabaseClient";
-import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import TaskList from "./components/TaskList";
+import { AuthProvider } from "./contexts/AuthContext"; // Importamos AuthProvider
 import {
   AuthPage,
   ErrorComponent,
@@ -39,7 +39,7 @@ function App() {
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
-            <DevtoolsProvider>
+            <AuthProvider>
               <Refine
                 dataProvider={dataProvider(supabaseClient)}
                 liveProvider={liveProvider(supabaseClient)}
@@ -136,13 +136,11 @@ function App() {
                     />
                   </Route>
                 </Routes>
-
-                  <RefineKbar />
-                  <UnsavedChangesNotifier />
-                  <DocumentTitleHandler />
-                </Refine>
-              </AuthProvider>
-             
+                <RefineKbar />
+                <UnsavedChangesNotifier />
+                <DocumentTitleHandler />
+              </Refine>
+            </AuthProvider>
           </AntdApp>
         </ColorModeContextProvider>
       </RefineKbarProvider>
