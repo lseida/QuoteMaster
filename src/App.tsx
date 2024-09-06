@@ -1,8 +1,10 @@
 import { Authenticated, Refine } from "@refinedev/core";
+import { dataProvider, liveProvider } from "@refinedev/supabase";
+import authProvider from "./authProvider";
+import supabaseClient from "./utility/supabaseClient";
+import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import TaskList from "./components/TaskList";
-import { AuthProvider } from "./contexts/AuthContext";
-
 import {
   AuthPage,
   ErrorComponent,
@@ -18,26 +20,13 @@ import routerBindings, {
   NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
-import { dataProvider, liveProvider } from "@refinedev/supabase";
+
 import { App as AntdApp } from "antd";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import authProvider from "./authProvider";
 import { AppIcon } from "./components/app-icon";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
-import {
-  BlogPostCreate,
-  BlogPostEdit,
-  BlogPostList,
-  BlogPostShow,
-} from "./pages/blog-posts";
-import {
-  CategoryCreate,
-  CategoryEdit,
-  CategoryList,
-  CategoryShow,
-} from "./pages/categories";
-import supabaseClient from "./utility/supabaseClient";
+
 import ClienteList from './components/ClienteList';
 import ProductoForm from './components/ProductoForm';
 import { ShoppingOutlined } from "@ant-design/icons";
@@ -51,117 +40,103 @@ function App() {
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
-          
-              <AuthProvider> {/* Añadimos AuthProvider aquí */}
-                <Refine
-                  dataProvider={dataProvider(supabaseClient)}
-                  liveProvider={liveProvider(supabaseClient)}
-                  authProvider={authProvider}
-                  routerProvider={routerBindings}
-                  notificationProvider={useNotificationProvider}
-                  resources={[
-                    {
-                      name: "clientes",
-                      list: "/clientes",
-                      meta: {
-                        canDelete: true,
-                      },
+            <DevtoolsProvider>
+              <Refine
+                dataProvider={dataProvider(supabaseClient)}
+                liveProvider={liveProvider(supabaseClient)}
+                authProvider={authProvider}
+                routerProvider={routerBindings}
+                notificationProvider={useNotificationProvider}
+                resources={[
+                  {
+                    name: "clientes",
+                    list: "/clientes",
+                    meta: {
+                      canDelete: true,
                     },
-                    {
-                      name: "productos",
-                      list: "/productos",
-                      create: "/productos/crear",
-                      meta: {
-                        canDelete: true,
-                        icon: <ShoppingOutlined />,
-                      },
+                  },
+                  {
+                    name: "productos",
+                    list: "/productos",
+                    create: "/productos/crear",
+                    meta: {
+                      canDelete: true,
+                      icon: <ShoppingOutlined />,
                     },
-                    {
-                      name: "calendario",
-                      list: "/calendario",
-                      meta: {
-                        icon: <CalendarOutlined />,
-                      },
+                  },
+                  {
+                    name: "calendario",
+                    list: "/calendario",
+                    meta: {
+                      icon: <CalendarOutlined />,
                     },
-                    {
-                      name: "tareas",
-                      list: "/tareas",
-                      meta: {
-                        icon: <CalendarOutlined />,
-                      },
+                  },
+                  {
+                    name: "tareas",
+                    list: "/tareas",
+                    meta: {
+                      icon: <CalendarOutlined />,
                     },
-                  ]}
-                  options={{
-                    syncWithLocation: true,
-                    warnWhenUnsavedChanges: true,
-                    useNewQueryKeys: true,
-                    projectId: "jxCdv3-2C7w1m-e35SQK",
-                    title: { text: "Refine Project", icon: <AppIcon /> },
-                  }}
-                >
-                  <Routes>
-                    <Route
-                      element={
-                        <Authenticated
-                          key="authenticated-inner"
-                          fallback={<CatchAllNavigate to="/login" />}
+                  },
+                ]}
+                options={{
+                  syncWithLocation: true,
+                  warnWhenUnsavedChanges: true,
+                  useNewQueryKeys: true,
+                  projectId: "jxCdv3-2C7w1m-e35SQK",
+                  title: { text: "Refine Project", icon: <AppIcon /> },
+                }}
+              >
+                <Routes>
+                  <Route
+                    element={
+                      <Authenticated
+                        key="authenticated-inner"
+                        fallback={<CatchAllNavigate to="/login" />}
+                      >
+                        <ThemedLayoutV2
+                          Header={Header}
+                          Sider={(props) => <ThemedSiderV2 {...props} fixed />}
                         >
-                          <ThemedLayoutV2
-                            Header={Header}
-                            Sider={(props) => <ThemedSiderV2 {...props} fixed />}
-                          >
-                            <Outlet />
-                          </ThemedLayoutV2>
-                        </Authenticated>
-                      }
-                    >
-                      <Route
-                        index
-                        element={<NavigateToResource resource="clientes" />}
-                      />
-                      <Route path="/clientes">
-                        <Route index element={<ClienteList />} />
-                      </Route>
-                      <Route path="/productos/crear" element={<ProductoForm />} />
-                      <Route path="/productos" element={<ProductoList />} />
-                      <Route path="/calendario" element={<EventCalendar />} />
-                      <Route path="/tareas" element={<TaskList />} />
-                      <Route path="*" element={<ErrorComponent />} />
-                    </Route>
+                          <Outlet />
+                        </ThemedLayoutV2>
+                      </Authenticated>
+                    }
+                  >
                     <Route
-                      element={
-                        <Authenticated
-                          key="authenticated-outer"
-                          fallback={<Outlet />}
-                        >
-                          <NavigateToResource />
-                        </Authenticated>
-                      }
-                    >
-                      <Route
-                        path="/login"
-                        element={
-                          <AuthPage
-                            type="login"
-                            formProps={{
-                              initialValues: {
-                                email: "info@refine.dev",
-                                password: "refine-supabase",
-                              },
-                            }}
-                          />
-                        }
-                      />
-                      <Route
-                        path="/register"
-                        element={<AuthPage type="register" />}
-                      />
-                      <Route
-                        path="/forgot-password"
-                        element={<AuthPage type="forgotPassword" />}
-                      />
+                      index
+                      element={<NavigateToResource resource="clientes" />}
+                    />
+                    <Route path="/clientes">
+                      <Route index element={<ClienteList />} />
                     </Route>
-                  </Routes>
+                    <Route path="/productos/crear" element={<ProductoForm />} />
+                    <Route path="/productos" element={<ProductoList />} />
+                    <Route path="/calendario" element={<EventCalendar />} />
+                    <Route path="/tareas" element={<TaskList />} />
+                    <Route path="*" element={<ErrorComponent />} />
+                  </Route>
+                  <Route
+                    element={
+                      <Authenticated fallback={<Outlet />} key="authenticated-outer">
+                        <NavigateToResource />
+                      </Authenticated>
+                    }
+                  >
+                    <Route
+                      path="/login"
+                      element={
+                        <AuthPage
+                          type="login"
+                        />
+                      }
+                    />
+                    <Route
+                      path="/forgot-password"
+                      element={<AuthPage type="forgotPassword" />}
+                    />
+                  </Route>
+                </Routes>
 
                   <RefineKbar />
                   <UnsavedChangesNotifier />
