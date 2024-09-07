@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Row, Col, TablePaginationConfig } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Client } from '../Types/client';
 import supabase from '../utility/supabaseClient';
@@ -11,40 +11,78 @@ const ClienteList: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [pagination, setPagination] = useState<TablePaginationConfig>({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
-  const fetchClientes = async () => {
+  const fetchClientes = useCallback(async () => {
     setLoading(true);
-    const { count, error: countError } = await supabase
-      .from('client')
-      .select('*', { count: 'exact', head: true });
+    try {
+      let query = supabase
+        .from('client')
+        .select('*', { count: 'exact' });
+      
+      if (searchText) {
+        query = query.or(`nombre.ilike.%${searchText}%,empresa.ilike.%${searchText}%,correo.ilike.%${searchText}%`);
+      }
 
-    if (countError) {
-      message.error('Error al contar los clientes: ' + countError.message);
-      setLoading(false);
-      return;
-    }
+      const { data, count, error } = await query
+        .range(((pagination.current || 1) - 1) * (pagination.pageSize || 10), (pagination.current || 1) * (pagination.pageSize || 10) - 1);
 
-    const { data, error } = await supabase
-      .from('client')
-      .select('*')
-      .range((pagination.current - 1) * pagination.pageSize, pagination.current * pagination.pageSize - 1);
+      if (error) throw error;
 
-    if (error) {
-      message.error('Error al cargar los clientes: ' + error.message);
-    } else {
       setClientes(data || []);
       setPagination(prev => ({ ...prev, total: count || 0 }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      message.error('Error al cargar los clientes: ' + errorMessage);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [pagination.current, pagination.pageSize, searchText]);
 
   useEffect(() => {
     fetchClientes();
-  }, [pagination.current, pagination.pageSize]);
+  }, [fetchClientes]);
 
-  const columns = [
+  const handleDeleteClient = useCallback(async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from('client')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      
+      setClientes(prevClientes => prevClientes.filter(c => c.id !== id.toString()));
+      
+      if (clientes.length === 1 && (pagination.current ?? 1) > 1) {
+        setPagination(prev => ({ ...prev, current: (prev.current ?? 1) - 1 }));
+      } else {
+        fetchClientes();
+      }
+      
+      message.success('Cliente eliminado exitosamente');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      message.error('Error al eliminar el cliente: ' + errorMessage);
+    }
+  }, [clientes.length, pagination.current, fetchClientes]);
+
+  const showModal = useCallback((client: Client | null = null) => {
+    setEditingClient(client);
+    if (client) {
+      form.setFieldsValue(client);
+    } else {
+      form.resetFields();
+    }
+    setIsModalVisible(true);
+  }, [form]);
+
+  const columns = useMemo(() => [
     { 
       title: 'Nombre', 
       dataIndex: 'nombre', 
@@ -58,7 +96,7 @@ const ClienteList: React.FC = () => {
     {
       title: 'Acciones',
       key: 'actions',
-      render: (_:any, record: Client) => (
+      render: (_: React.ReactNode, record: Client) => (
         <Space size="middle">
           <Button onClick={() => showModal(record)}>Editar</Button>
           <Popconfirm
@@ -72,7 +110,7 @@ const ClienteList: React.FC = () => {
         </Space>
       ),
     },
-  ];
+  ], [handleDeleteClient, showModal]);
 
   const handleAddCliente = async (values: Omit<Client, 'id'>) => {
     try {
@@ -105,47 +143,11 @@ const ClienteList: React.FC = () => {
       setEditingClient(null);
       message.success('Cliente actualizado exitosamente');
       setIsModalVisible(false);
-      } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      message.error('Error al agregar el cliente: ' + errorMessage);
-    }
-    
-  };
-
-  const handleDeleteClient = async (id: number) => {
-    try {
-      const { error } = await supabase
-        .from('client')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      
-      // Actualizar la lista de clientes localmente
-      setClientes(prevClientes => prevClientes.filter(c => c.id !== id.toString()));
-      
-      // Actualizar la paginación si es necesario
-      if (clientes.length === 1 && pagination.current > 1) {
-        setPagination(prev => ({ ...prev, current: prev.current - 1 }));
-      } else {
-        // Refetch para asegurar que tenemos los datos más actualizados
-        fetchClientes();
-      }
-      
-      message.success('Cliente eliminado exitosamente');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       message.error('Error al agregar el cliente: ' + errorMessage);
     }
-  };
-
-  const showModal = (client: Client | null = null) => {
-    setEditingClient(client);
-    if (client) {
-      form.setFieldsValue(client);
-    } else {
-      form.resetFields();
-    }
-    setIsModalVisible(true);
+    
   };
 
   const handleCancel = () => {
@@ -154,38 +156,71 @@ const ClienteList: React.FC = () => {
     form.resetFields();
   };
 
+  const handleTableChange = (newPagination: TablePaginationConfig) => {
+    setPagination(prev => ({
+      ...prev,
+      current: newPagination.current ?? prev.current,
+      pageSize: newPagination.pageSize ?? prev.pageSize,
+    }));
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
+  };
+
   return (
     <div>
-      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1>Clientes</h1>
-          <Space>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => showModal()}
-            >
-              Crear
-            </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={fetchClientes}
-            >
-              Actualizar
-            </Button>
-          </Space>
-        </div>
+      <Space direction="vertical" size="middle" style={{ display: 'flex', width: '100%' }}>
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+            <h1>Clientes</h1>
+          </Col>
+          <Col xs={24} sm={24} md={16} lg={16} xl={16}>
+            <Row gutter={[8, 8]} justify="end">
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Input.Search
+                  placeholder="Buscar clientes"
+                  onSearch={handleSearch}
+                  style={{ width: '100%' }}
+                />
+              </Col>
+              <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => showModal()}
+                  style={{ width: '100%' }}
+                >
+                  Crear
+                </Button>
+              </Col>
+              <Col xs={12} sm={12} md={6} lg={6} xl={6}>
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={fetchClientes}
+                  style={{ width: '100%' }}
+                >
+                  Actualizar
+                </Button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
         <Table 
           dataSource={clientes} 
           columns={columns} 
           rowKey="id"
-          pagination={pagination}
-          onChange={(newPagination) => setPagination({
+          pagination={{
             ...pagination,
-            current: newPagination.current || pagination.current,
-            pageSize: newPagination.pageSize || pagination.pageSize,
-          })}
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Total ${total} clientes`,
+            locale: { items_per_page: '/ páginas' },
+          }}
+          onChange={handleTableChange}  // <-- Añadir esta línea
           loading={loading}
+          scroll={{ x: 'max-content' }}
         />
       </Space>
       
